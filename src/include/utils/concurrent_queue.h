@@ -1,7 +1,7 @@
 #ifndef SIMPLE_THREADS_CONCURRENT_QUEUE
 #define SIMPLE_THREADS_CONCURRENT_QUEUE
 
-#include "lock_guard.h"
+#include "utils/lock_guard.h"
 #include "simple_thread.h"
 
 namespace simple_threads {
@@ -11,7 +11,7 @@ class ConcurrentQueue {
 public:
     ConcurrentQueue(int capacity) : size_(0), capacity_(capacity), start(-1), end(-1) {
         arr = new T[capacity];
-        pthread_mutex_init(&mtx);
+        pthread_mutex_init(&mtx, NULL);
     }
     ~ConcurrentQueue() {
         delete [] arr;
@@ -32,19 +32,19 @@ public:
     }
     T front() const {
         LockGuard(&mtx);
-        return arr[start+1];
+        return arr[end+1];
     }
-    T pop() const {
-        LockGuard(&mtx);
-        start = (start + 1) % capacity__;
-        T res = arr[start];
-        --size_;
-        rturn res;        
-    }
-    void push(T item) const {
+    T pop() {
         LockGuard(&mtx);
         end = (end + 1) % capacity_;
-        arr[end] = item;
+        T res = arr[end];
+        --size_;
+        return res;        
+    }
+    void push(T item) {
+        LockGuard(&mtx);
+        start = (start + 1) % capacity_;
+        arr[start] = item;
         ++size_;
     }
 
