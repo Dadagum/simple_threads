@@ -19,30 +19,30 @@ public:
     }
 
     bool empty() const {
-        LockGuard(&mtx);
+        LockGuard lock(mtx);
         return size_ == 0;
     }
     bool full() const {
-        LockGuard(&mtx);
+        LockGuard lock(mtx);
         return size_ == capacity_;
     }
     size_t size() const {
-        LockGuard(&mtx);
+        LockGuard lock(mtx);
         return size_;
     }
     T front() const {
-        LockGuard(&mtx);
+        LockGuard lock(mtx);
         return arr[end+1];
     }
     T pop() {
-        LockGuard(&mtx);
+        LockGuard lock(mtx);
         end = (end + 1) % capacity_;
         T res = arr[end];
         --size_;
         return res;        
     }
     void push(T item) {
-        LockGuard(&mtx);
+        LockGuard lock(mtx);
         start = (start + 1) % capacity_;
         arr[start] = item;
         ++size_;

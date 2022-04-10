@@ -13,6 +13,7 @@ public:
     ~Semaphore();
     void P();
     void V();
+    int num();
 
 private:
     DISALLOW_COPY_AND_ASSIGN(Semaphore);

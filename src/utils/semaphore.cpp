@@ -21,11 +21,15 @@ void Semaphore::P() {
 }
 
 void Semaphore::V() {
-    {
-        LockGuard lock(mtx);
-        ++cnt_;
-    }
-    pthread_cond_signal(&cond);
+    LockGuard lock(mtx);
+    ++cnt_;
+    if (cnt_ == 1) 
+        pthread_cond_signal(&cond);
+}
+
+int Semaphore::num() {
+    LockGuard lock(mtx);
+    return cnt_;
 }
 
 }
