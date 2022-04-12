@@ -18,19 +18,19 @@ public:
         pthread_mutex_destroy(&mtx);
     }
 
-    bool empty() const {
+    bool empty() {
         LockGuard lock(mtx);
         return size_ == 0;
     }
-    bool full() const {
+    bool full() {
         LockGuard lock(mtx);
         return size_ == capacity_;
     }
-    size_t size() const {
+    size_t size() {
         LockGuard lock(mtx);
         return size_;
     }
-    T front() const {
+    T front() {
         LockGuard lock(mtx);
         return arr[end+1];
     }

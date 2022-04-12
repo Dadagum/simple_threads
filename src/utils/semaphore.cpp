@@ -1,4 +1,5 @@
 #include "utils/semaphore.h"
+#include <stdio.h>
 
 namespace simple_threads {
 
@@ -18,13 +19,13 @@ void Semaphore::P() {
     while (cnt_ == 0)
         pthread_cond_wait(&cond, &mtx);
     --cnt_;
+    //printf("cnt_ = %d\n", cnt_);
 }
 
 void Semaphore::V() {
     LockGuard lock(mtx);
     ++cnt_;
-    if (cnt_ == 1) 
-        pthread_cond_signal(&cond);
+    pthread_cond_signal(&cond);
 }
 
 int Semaphore::num() {

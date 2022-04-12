@@ -11,13 +11,14 @@
 
 namespace simple_threads {
 
-using Task = void (*)(void*);
+using Task = void* (*)(void*);
 using Args = void*;
 
 class ThreadPool {
 
 public:
     ThreadPool(int threads_num, int task_capacity);
+    void init();
     ~ThreadPool();
     bool submit(Task task, void* args);
     void shutdown(); // 执行所有提交过的 Task 后线程才退出
@@ -25,7 +26,6 @@ public:
 
 private:
     DISALLOW_COPY_AND_ASSIGN(ThreadPool);
-    void start_up_threads();
     std::vector<pthread_t> thread_pool;
     ConcurrentQueue<std::pair<Task, void*>> task_pool;
     int threads_num_;
