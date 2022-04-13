@@ -53,8 +53,8 @@ private:
     size_t size_;
     size_t capacity_;
     T* arr;
-    size_t start;
-    size_t end;
+    int start;
+    int end;
     pthread_mutex_t mtx;
 };
 

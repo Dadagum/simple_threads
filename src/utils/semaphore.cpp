@@ -19,7 +19,6 @@ void Semaphore::P() {
     while (cnt_ == 0)
         pthread_cond_wait(&cond, &mtx);
     --cnt_;
-    //printf("cnt_ = %d\n", cnt_);
 }
 
 void Semaphore::V() {

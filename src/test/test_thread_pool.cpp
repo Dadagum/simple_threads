@@ -2,13 +2,13 @@
 #include <iostream>
 #include <stdio.h>
 
-static void* print(void* arg); // 测试线程 routine
+void* print(void* arg); // 测试线程 routine
 static void pthread_test(int nums); // 直接使用 pthread 
 static void test_destruct(int nums, simple_threads::ThreadPool &pool); // 测试 ThreadPool 自动销毁
 static void test_shutdown(int nums, simple_threads::ThreadPool &pool); // 测试 ThreadPool 的 shutdown() 函数
 static void test_shutdownNow(int nums, simple_threads::ThreadPool &pool); // 测试 ThreadPool 的 shutdownNow() 函数
 
-static void* print(void* arg) {
+void* print(void* arg) {
     int idx = *((int *)arg);
     std::string str = "hello world from " + std::to_string(idx);
     printf("%s\n", str.c_str());

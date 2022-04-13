@@ -31,14 +31,15 @@ bool ThreadPool::submit(Task task, void* args) {
 }
 
 void* thread_routine(void* arg) {
+    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL); // 线程随时可以被 cancel
     ThreadPool* tptr = static_cast<ThreadPool*>(arg);
     while (true) {
-        tptr->full.P();
+        tptr->full.P(); // 线程卡这里
         std::pair<Task, Args> task = tptr->task_pool.pop();
         tptr->empty.V();
         task.first(task.second); 
         {
-            LockGuard lock(tptr->mtx);
+            LockGuard lock(tptr->mtx); // 线程也卡这里
             --tptr->todo_task;
             if (tptr->todo_task == 0)
                 pthread_cond_signal(&tptr->shutdown_cond);
@@ -71,6 +72,9 @@ void ThreadPool::shutdownNow() {
 void ThreadPool::shutdownNow_() {
     for (int i = 0; i < threads_num_; ++i) {
         pthread_cancel(thread_pool[i]);
+    }
+    for (int i = 0; i < threads_num_; ++i) {
+        pthread_join(thread_pool[i], NULL);
     }
 }
 
