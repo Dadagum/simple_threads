@@ -25,6 +25,9 @@ public:
     void shutdownNow(); // 立刻退出线程
 
 private:
+    friend void* thread_routine(void*); // 线程池线程例程
+    void shutdownNow_();
+
     DISALLOW_COPY_AND_ASSIGN(ThreadPool);
     std::vector<pthread_t> thread_pool;
     ConcurrentQueue<std::pair<Task, void*>> task_pool;
@@ -33,11 +36,10 @@ private:
     Semaphore empty; // 任务队列空余空间
     Semaphore full; // 任务队列中任务的数量
     bool running;
-    pthread_mutex_t mtx; // 保护 running 的互斥量
-    pthread_mutex_t shutdown_mtx;
+    int todo_task;
+    pthread_mutex_t mtx;
     pthread_cond_t shutdown_cond; // 是否能 cancel 线程的条件
 
-    friend void* thread_routine(void*); // 线程池线程例程
 };
 
 }

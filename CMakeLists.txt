@@ -1,16 +1,14 @@
 cmake_minimum_required(VERSION 3.5)
 project (simple_threads)
 
-set(CMAKE_BINARY_DIR 
-    $(CMAKE_SOURCE_DIR)/build
-)
 
-set(PROJECT_SOURCE_DIR ./src)
+set(PROJECT_SOURCE_DIR .)
+set(CMAKE_BINARY_DIR ./build )
 add_compile_options(-Wall -W -g)
 add_definitions(-DDEBUG)
 
-aux_source_directory(${PROJECT_SOURCE_DIR}/threads DIR_THREADS_SRCS)
-aux_source_directory(${PROJECT_SOURCE_DIR}/utils DIR_UTILS_SRCS)
+aux_source_directory(${PROJECT_SOURCE_DIR}/src/threads DIR_THREADS_SRCS)
+aux_source_directory(${PROJECT_SOURCE_DIR}/src/utils DIR_UTILS_SRCS)
 
 add_library(simple_threads SHARED
     ${DIR_THREADS_SRCS}    
@@ -19,7 +17,7 @@ add_library(simple_threads SHARED
 
 target_include_directories(simple_threads
     PRIVATE 
-        ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/src/include
 ) 
 
 # link pthread
@@ -30,12 +28,12 @@ target_link_libraries(simple_threads Threads::Threads)
 
 # test
 add_executable(test_thread_pool
-    ${PROJECT_SOURCE_DIR}/test/test_thread_pool.cpp
+    ${PROJECT_SOURCE_DIR}/src/test/test_thread_pool.cpp
 )
 
 target_include_directories(test_thread_pool
     PRIVATE 
-        ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/src/include
 ) 
 
 target_link_libraries( test_thread_pool
