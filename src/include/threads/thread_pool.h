@@ -27,8 +27,7 @@ public:
 private:
     friend void* thread_routine(void*); // 线程池线程例程
     void shutdownNow_();
-
-    DISALLOW_COPY_AND_ASSIGN(ThreadPool);
+    COPY_CONSTRUCT_ASSIGN(ThreadPool);
     std::vector<pthread_t> thread_pool;
     ConcurrentQueue<std::pair<Task, void*>> task_pool;
     int threads_num_;

@@ -1,7 +1,6 @@
 #ifndef SIMPLE_THREADS_LOCK_GUARD_H
 #define SIMPLE_THREADS_LOCK_GUARD_H
 
-#include <pthread.h>
 #include "simple_thread.h"
 
 namespace simple_threads {
@@ -16,7 +15,7 @@ public:
     }
     
 private:
-    DISALLOW_COPY_AND_ASSIGN(LockGuard);
+    COPY_CONSTRUCT_ASSIGN(LockGuard);
     pthread_mutex_t& mtx_;
 };
 

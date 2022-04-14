@@ -1,5 +1,4 @@
 #include "utils/semaphore.h"
-#include <stdio.h>
 
 namespace simple_threads {
 

@@ -49,7 +49,7 @@ public:
     }
 
 private:
-    DISALLOW_COPY_AND_ASSIGN(ConcurrentQueue);
+    COPY_CONSTRUCT_ASSIGN(ConcurrentQueue);
     size_t size_;
     size_t capacity_;
     T* arr;

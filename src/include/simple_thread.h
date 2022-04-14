@@ -2,9 +2,12 @@
 #define SIMPLE_THREADS_COMMON_H
 
 #include <unistd.h>
+#include <pthread.h>
 
-#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
+
+#define COPY_CONSTRUCT_ASSIGN(TypeName) \
     TypeName(const TypeName&);             \
     TypeName& operator=(const TypeName&)
+
 
 #endif
