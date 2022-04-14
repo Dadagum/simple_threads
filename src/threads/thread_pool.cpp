@@ -31,15 +31,14 @@ bool ThreadPool::submit(Task task, void* args) {
 }
 
 void* thread_routine(void* arg) {
-    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL); // 线程随时可以被 cancel
     ThreadPool* tptr = static_cast<ThreadPool*>(arg);
     while (true) {
-        tptr->full.P(); // 线程卡这里
+        tptr->full.P(); // cancellation point
         std::pair<Task, Args> task = tptr->task_pool.pop();
         tptr->empty.V();
-        task.first(task.second); 
+        task.first(task.second); // do task
         {
-            LockGuard lock(tptr->mtx); // 线程也卡这里
+            LockGuard lock(tptr->mtx);  
             --tptr->todo_task;
             if (tptr->todo_task == 0)
                 pthread_cond_signal(&tptr->shutdown_cond);
@@ -54,18 +53,22 @@ void ThreadPool::init() {
 }
 
 void ThreadPool::shutdown() {
-    LockGuard lock(mtx);
-    if (!running) return; // already shutdown
-    running = false;
-    while (todo_task > 0) 
-        pthread_cond_wait(&shutdown_cond, &mtx); // 线程仍然没有完成提交的任务
+    {
+        LockGuard lock(mtx);
+        if (!running) return; // already shutdown
+        running = false;
+        while (todo_task > 0) 
+            pthread_cond_wait(&shutdown_cond, &mtx); // 线程仍然没有完成提交的任务
+    }
     shutdownNow_();
 }
 
 void ThreadPool::shutdownNow() {
-    LockGuard lock(mtx);
-    if (!running) return; // already shutdown
-    running = false;
+    {
+        LockGuard lock(mtx);
+        if (!running) return; // already shutdown
+        running = false;
+    }
     shutdownNow_();
 }
 
