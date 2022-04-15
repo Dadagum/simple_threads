@@ -45,6 +45,14 @@ public:
         raw_ptr = ptr;
     }
 
+    T& operator*() {
+        return *raw_ptr;
+    }
+
+    T* operator->() {
+        return raw_ptr;
+    }
+
 private:
     COPY_CONSTRUCT_ASSIGN(UniquePtr);
     void delete_ptr() {

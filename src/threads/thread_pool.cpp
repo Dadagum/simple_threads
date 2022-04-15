@@ -8,15 +8,11 @@ ThreadPool::ThreadPool(int threads_num, int task_capacity = 64) :
 task_pool(task_capacity), threads_num_(threads_num), task_capacity_(task_capacity), 
 empty(task_capacity), full(0), running(true), todo_task(0){
     thread_pool.reserve(threads_num_);
-    pthread_mutex_init(&mtx, NULL);
-    pthread_cond_init(&shutdown_cond, NULL);
 }
 
 ThreadPool::~ThreadPool() {
     shutdown();
-    pthread_mutex_destroy(&mtx);
-    pthread_cond_destroy(&shutdown_cond);
-}
+} 
 
 bool ThreadPool::submit(Task task, void* args) {
     {
@@ -30,7 +26,7 @@ bool ThreadPool::submit(Task task, void* args) {
     return true;
 }
 
-void* thread_routine(void* arg) {
+void* ThreadPool::thread_routine(void* arg) {
     ThreadPool* tptr = static_cast<ThreadPool*>(arg);
     while (true) {
         tptr->full.P(); // cancellation point
@@ -41,7 +37,7 @@ void* thread_routine(void* arg) {
             LockGuard lock(tptr->mtx);  
             --tptr->todo_task;
             if (tptr->todo_task == 0)
-                pthread_cond_signal(&tptr->shutdown_cond);
+                tptr->shutdown_cond.signal();
         }
     }
 }
@@ -58,7 +54,7 @@ void ThreadPool::shutdown() {
         if (!running) return; // already shutdown
         running = false;
         while (todo_task > 0) 
-            pthread_cond_wait(&shutdown_cond, &mtx); // 线程仍然没有完成提交的任务
+            shutdown_cond.wait(&mtx);
     }
     shutdownNow_();
 }

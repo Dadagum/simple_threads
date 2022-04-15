@@ -2,6 +2,8 @@
 #define SIMPLE_THREADS_FUTURE_H
 
 #include "simple_thread.h"
+#include "utils/mutex.h"
+#include "utils/cond_var.h"
 #include "utils/lock_guard.h"
 #include "utils/unique_ptr.h"
 
@@ -11,15 +13,10 @@ template<typename T>
 class Future {
 public:
     Future() : flag(false), ptr(nullptr) {
-        mtx_ptr.set(new pthread_mutex_t);
-        cond_ptr.set(new pthread_cond_t);
-        pthread_mutex_init(mtx_ptr, NULL);
-        pthread_cond_init(cond_ptr, NULL);
+        mtx_ptr.set(new Mutex);
+        cond_ptr.set(new CondVar);
     }
-    ~Future() {
-        pthread_mutex_destroy(mtx_ptr);
-        pthread_cond_destroy(cond_ptr);
-    }
+    ~Future() {}
     Future(Future&& f) {
         move_(std::move(f));
     }
@@ -52,8 +49,8 @@ private:
     }
     bool flag;
     UniquePtr<T> ptr; 
-    UniquePtr<pthread_mutex_t> mtx_ptr;
-    UniquePtr<pthread_cond_t> cond_ptr;
+    UniquePtr<Mutex> mtx_ptr;
+    UniquePtr<CondVar> cond_ptr;
 };
 
 }

@@ -57,7 +57,7 @@ int main(int argc, char* argv[]){
     if (argc == 3) task_capacity = std::stoi(argv[2]);
     simple_threads::ThreadPool pool(num_threads, task_capacity);
     pool.init();
-    test_shutdownNow(num_threads, pool);
+    test_shutdown(num_threads, pool);
     return 0;
 }
 

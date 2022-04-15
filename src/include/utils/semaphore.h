@@ -3,6 +3,8 @@
 
 #include "simple_thread.h"
 #include "utils/lock_guard.h"
+#include "utils/mutex.h"
+#include "utils/cond_var.h"
 
 namespace simple_threads {
 
@@ -16,8 +18,8 @@ public:
 
 private:
     COPY_CONSTRUCT_ASSIGN(Semaphore);
-    pthread_mutex_t mtx;
-    pthread_cond_t cond;
+    Mutex mtx;
+    CondVar cond;
     int cnt_;
 };
 

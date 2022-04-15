@@ -3,6 +3,7 @@
 
 #include "simple_thread.h"
 #include "utils/lock_guard.h"
+#include "utils/mutex.h"
 
 namespace simple_threads {
 
@@ -37,13 +38,20 @@ public:
         return raw_ptr;
     }
 
+    T* operator->() {
+        return raw_ptr;
+    }
+
+    T& operator*() {
+        return *raw_ptr;
+    }
+
 private:
     void init(T* ptr) {
         raw_ptr = ptr;
         if (ptr) {
-            mtx_ptr = new pthread_mutex_t;
+            mtx_ptr = new Mutex;
             ref_ptr = new int(1);
-            pthread_mutex_init(mtx_ptr, NULL);
         }
     }
 
@@ -62,13 +70,12 @@ private:
             }
         }
         if (last) {
-            pthread_mutex_destroy(mtx_ptr);
             delete mtx_ptr;
         }
     }
     void incr_ref(SharedPtr& rhs) {
         if (!rhs.raw_ptr) return;
-        LockGuard lock(*rhs.mtx_ptr);
+        LockGuard lock(*(rhs.mtx_ptr));
         raw_ptr = rhs.raw_ptr;
         deletor_ = rhs.deletor_;
         mtx_ptr = rhs.mtx_ptr;
@@ -78,7 +85,7 @@ private:
 
     T* raw_ptr;
     Deletor deletor_;
-    pthread_mutex_t* mtx_ptr; 
+    Mutex* mtx_ptr; 
     int* ref_ptr;
     bool is_null; // point to nullptr
 };

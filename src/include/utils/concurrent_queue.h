@@ -3,6 +3,7 @@
 
 #include "utils/lock_guard.h"
 #include "simple_thread.h"
+#include "utils/mutex.h"
 
 namespace simple_threads {
 
@@ -11,11 +12,9 @@ class ConcurrentQueue {
 public:
     ConcurrentQueue(int capacity) : size_(0), capacity_(capacity), start(-1), end(-1) {
         arr = new T[capacity];
-        pthread_mutex_init(&mtx, NULL);
     }
     ~ConcurrentQueue() {
         delete [] arr;
-        pthread_mutex_destroy(&mtx);
     }
 
     bool empty() {
@@ -55,7 +54,7 @@ private:
     T* arr;
     int start;
     int end;
-    pthread_mutex_t mtx;
+    Mutex mtx;
 };
 
 }

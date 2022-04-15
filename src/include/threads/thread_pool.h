@@ -7,6 +7,8 @@
 #include "simple_thread.h"
 #include "utils/concurrent_queue.h"
 #include "utils/semaphore.h"
+#include "utils/mutex.h"
+#include "utils/cond_var.h"
 
 
 namespace simple_threads {
@@ -25,7 +27,7 @@ public:
     void shutdownNow(); // 立刻退出线程
 
 private:
-    friend void* thread_routine(void*); // 线程池线程例程
+    static void* thread_routine(void*); // 线程池线程例程
     void shutdownNow_();
     COPY_CONSTRUCT_ASSIGN(ThreadPool);
     std::vector<pthread_t> thread_pool;
@@ -36,8 +38,8 @@ private:
     Semaphore full; // 任务队列中任务的数量
     bool running;
     int todo_task;
-    pthread_mutex_t mtx;
-    pthread_cond_t shutdown_cond; // 是否能 cancel 线程的条件
+    Mutex mtx;
+    CondVar shutdown_cond; // 是否能 cancel 线程的条件
 
 };
 
