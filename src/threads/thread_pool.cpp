@@ -14,7 +14,7 @@ ThreadPool::~ThreadPool() {
     shutdown();
 } 
 
-bool ThreadPool::submit(Task task, void* args) {
+bool ThreadPool::submit(Task task, Arg args) {
     {
         LockGuard lock(mtx);
         if (!running) return false;
@@ -26,11 +26,11 @@ bool ThreadPool::submit(Task task, void* args) {
     return true;
 }
 
-void* ThreadPool::thread_routine(void* arg) {
+void* ThreadPool::thread_routine(Arg arg) {
     ThreadPool* tptr = static_cast<ThreadPool*>(arg);
     while (true) {
         tptr->full.P(); // cancellation point
-        std::pair<Task, Args> task = tptr->task_pool.pop();
+        std::pair<Task, Arg> task = tptr->task_pool.pop();
         tptr->empty.V();
         task.first(task.second); // do task
         {

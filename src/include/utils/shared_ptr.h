@@ -10,7 +10,7 @@ namespace simple_threads {
 template<typename T>
 class SharedPtr {
 public:
-    using Deletor = void (*)(T*); // 日后可以使用 std::functional
+    typedef void (*Deletor)(T*);
 
     SharedPtr(T* ptr = nullptr, Deletor deletor = nullptr) : deletor_(deletor) {
         init(ptr);

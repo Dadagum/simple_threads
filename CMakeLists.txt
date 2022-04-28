@@ -4,7 +4,7 @@ project (simple_threads)
 
 set(PROJECT_SOURCE_DIR .)
 set(CMAKE_BINARY_DIR ./build )
-add_compile_options(-Wall -W -ggdb)
+add_compile_options(-Wall -W -ggdb -std=c++98)
 add_definitions(-DDEBUG)
 
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/threads DIR_THREADS_SRCS)

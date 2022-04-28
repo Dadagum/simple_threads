@@ -8,7 +8,7 @@ namespace simple_threads {
 template<typename T>
 class UniquePtr {
 public:
-    using Deletor = void (*)(T*); // 日后可以使用 std::functional
+    typedef void (*Deletor)(T*);
 
     UniquePtr(T* ptr = nullptr, Deletor deletor = nullptr) : raw_ptr(ptr), deletor_(deletor) {}
 
