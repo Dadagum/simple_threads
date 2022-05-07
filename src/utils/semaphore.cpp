@@ -16,8 +16,10 @@ void Semaphore::P() {
 }
 
 void Semaphore::V() {
-    LockGuard lock(mtx);
-    ++cnt_;
+    {
+        LockGuard lock(mtx);
+        ++cnt_;
+    }
     cond.signal();
 }
 
