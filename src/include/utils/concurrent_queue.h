@@ -46,6 +46,11 @@ public:
         q.emplace(std::move(item));
     }
 
+    void clear() {
+        std::lock_guard<std::mutex> guard(mtx);
+        while (!q.empty()) q.pop();
+    }
+
     DISALLOW_COPY_CONSTRUCT_ASSIGN(ConcurrentQueue) 
 
 private:

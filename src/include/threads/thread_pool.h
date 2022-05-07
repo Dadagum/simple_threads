@@ -8,6 +8,7 @@
 #include <atomic>
 #include <vector>
 #include <stdexcept>
+#include <memory>
 #include "utils/pc_queue.h"
 
 #include "simple_thread.h"
@@ -18,8 +19,7 @@ class ThreadPool {
 public:
     using Task = std::function<void()>;
 
-    ThreadPool(int threads_num, int tasks_num = 64): pcq(tasks_num), 
-    threads_num_(threads_num), stopped(false){}
+    ThreadPool(int threads_num): threads_num_(threads_num), stopped(false){}
 
     /**
      * 初始化线程池, 二步构造，避免 this 指针没有初始化完成
@@ -34,10 +34,10 @@ public:
 
     ~ThreadPool() {
         stopped.store(true);
+        cv.notify_all();
         for (int i = 0; i < threads_num_; ++i) {
-            pthread_t th = threads[i].native_handle();
-            pthread_cancel(th);
-            pthread_join(th, NULL);
+            if (threads[i].joinable())
+                threads[i].join();
         }
     }
 
@@ -51,25 +51,33 @@ public:
         using ret_type = typename std::result_of<F(Args...)>::type;
 
         // 将传入的函数和参数打包为 packaged_task<R(ArgTypes...)> 
-        std::packaged_task<ret_type()> task(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
+        auto task = std::make_shared<std::packaged_task<ret_type()>>(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
         
-        // 将任务放入任务队列
-        pcq.emplace([task](){task();});
+        // 将任务放入任务队列, 唤醒一个工作线程
+        q.emplace([task](){(*task)();});
+        cv.notify_one();
 
         return task->get_future();
     }
 
 private:
     static void thread_routine(ThreadPool* pool) {
-        while (!pool->stopped.load()) {
-            Task task = pool->pcq.pop(); // cancellation point
+        Task task;
+        while (true) {
+            {
+                std::unique_lock<std::mutex> lk(pool->mtx);
+                pool->cv.wait(lk, [pool](){return pool->stopped.load() || !pool->q.empty();});
+                if (pool->stopped.load() && pool->q.empty()) return; 
+                task = std::move(pool->q.pop()); 
+            }
             task();
         }
     }
-
-    std::vector<std::thread> threads;
-    PCQueue<Task> pcq;
+    ConcurrentQueue<Task> q;
     int threads_num_;
+    std::condition_variable cv;
+    std::mutex mtx;
+    std::vector<std::thread> threads;
     std::atomic<bool> stopped;
 };
 

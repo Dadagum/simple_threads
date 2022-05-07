@@ -1,6 +1,7 @@
 #include "simple_thread.h"
 #include "semaphore.h"
 #include "concurrent_queue.h"
+#include <atomic>
 
 namespace simple_threads {
 
@@ -10,7 +11,7 @@ namespace simple_threads {
 template<typename T>
 class PCQueue {
 public:
-    PCQueue(int size = 64): full_(0), empty_(size) {
+    PCQueue(int size = 64): full_(0), empty_(size), cancel(false) {
         size_ = size;
     }
 
@@ -40,6 +41,7 @@ private:
     Semaphore full_;
     Semaphore empty_;
     ConcurrentQueue<T> cq;
+    std::atomic_bool cancel;
 };
 
 }

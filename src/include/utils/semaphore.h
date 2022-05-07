@@ -15,14 +15,24 @@ public:
 
     void P() {
         std::unique_lock<std::mutex> lk(mtx);
-        cv.wait(lk, [this]{return cnt_ > 0; });
         --cnt_;
+        cv.wait(lk, [this]{return cnt_ >= 0; });
     }
 
     void V() {
-        std::unique_lock<std::mutex> lk(mtx);
-        ++cnt_;
+        {
+            std::unique_lock<std::mutex> lk(mtx);
+            ++cnt_;
+        }
         cv.notify_one();
+    }
+
+    void reset(int cnt) {
+        {
+            std::unique_lock<std::mutex> lk(mtx);
+            cnt_ = cnt;
+        }
+        cv.notify_all();
     }
 
     DISALLOW_COPY_CONSTRUCT_ASSIGN(Semaphore)
